@@ -1,9 +1,8 @@
-user-app:
-  oauth2:
-    clients:
-      user-application:
-        registration-id: user-application
-        client-id: user-manager
-        client-secret: xgntDDfJiuaPc1XaSHuQgEO7KoffiBHA
-        authorization-grant-type: client_credentials
-        token-uri: http://localhost:8081/realms/user-application/protocol/openid-connect/token
+keycloak:
+  server-url: http://localhost:8081
+  realms:
+    user-application:
+      name: user-application
+      client-id: user-manager
+      client-secret: xgntDDfJiuaPc1XaSHuQgEO7KoffiBHA
+      grant-type: client_credentials

@@ -1,16 +1,15 @@
 package com.knsoft.user.configuration;
 
-import com.knsoft.user.services.repositories.KeycloackUserRepository;
-import com.knsoft.user.services.repositories.UserRepository;
+import com.knsoft.user.services.UserService;
+import com.knsoft.user.services.repositories.KeycloakUserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class ApplicationConfiguration {
 
     @Bean
-    public UserRepository userRepository(WebClient webClient) {
-        return new KeycloackUserRepository(webClient);
+    public UserService userService(KeycloakInstanceManager keycloakInstanceManager) {
+        return new UserService(new KeycloakUserRepository(keycloakInstanceManager));
     }
 }

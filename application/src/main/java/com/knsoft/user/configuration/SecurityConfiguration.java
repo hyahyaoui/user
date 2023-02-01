@@ -16,9 +16,8 @@ public class SecurityConfiguration {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(("/home")).permitAll()
+                        .requestMatchers(("/users/**")).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users/**").hasRole("USER")
                         .anyRequest().authenticated());
         return http.build();
     }
