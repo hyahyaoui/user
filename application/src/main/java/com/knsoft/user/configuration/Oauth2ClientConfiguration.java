@@ -1,12 +1,10 @@
-package com.company.keycloak.configuration;
+package com.knsoft.user.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-public class AppConfig {
+public class Oauth2ClientConfiguration {
 
 
     @Bean
@@ -33,15 +31,6 @@ public class AppConfig {
                 .build();
     }
 
-    @Bean
-    OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository(
-            ClientRegistrationRepository clientRegistrations) {
-
-        InMemoryOAuth2AuthorizedClientService authorizedClientService =
-                new InMemoryOAuth2AuthorizedClientService(clientRegistrations);
-
-        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
-    }
 
     @Bean
     ClientRegistrationRepository clientRegistrationRepository(

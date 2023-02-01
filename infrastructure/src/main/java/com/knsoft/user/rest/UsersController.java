@@ -1,7 +1,8 @@
-package com.company.keycloak.rest;
+package com.knsoft.user.rest;
 
-import com.company.keycloak.model.User;
-import com.company.keycloak.services.UserRepository;
+
+import com.knsoft.user.model.User;
+import com.knsoft.user.services.repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

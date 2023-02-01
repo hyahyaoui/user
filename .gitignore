@@ -1,3 +1,33 @@
-target/
+ Java stuff
+*.class
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs; hopefully not many of these ;-)
+hs_err_pid*
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# IntelliJ
 *.iml
-.idea/*
+/.idea
+/out
+
+# Build and log dirs
+**/bin
+**/target
+**/build
+**/dist
+**/logs
+
+# Allow maven and gradle wrapper jars - we need these for TravisCI
+!.mvn/wrapper/maven-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.jar
+
+
+# Gradle
+.gradle

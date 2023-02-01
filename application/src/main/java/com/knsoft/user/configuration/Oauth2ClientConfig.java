@@ -1,7 +1,6 @@
-package com.company.keycloak.configuration;
+package com.knsoft.user.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
