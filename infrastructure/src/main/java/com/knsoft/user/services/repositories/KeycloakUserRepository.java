@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class KeycloakUserRepository implements UserRepository {
 
     private final KeycloakInstanceManager keycloakInstanceManager;
-    private final Logger logger = LoggerFactory.getLogger(KeycloakUserRepository.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(KeycloakUserRepository.class);
 
 
     /**
@@ -50,15 +50,15 @@ public class KeycloakUserRepository implements UserRepository {
     @Override
     public Page<User> findAll(String realm, int start, int end, int resultsPerPage) {
         if (realm == null || realm.isEmpty()) {
-            logger.error("realm cannot be null or empty");
+            LOGGER.error("realm cannot be null or empty");
             throw new IllegalArgumentException("realm cannot be null or empty");
         }
         if (start < 0 || end < 0 || resultsPerPage < 1) {
-            logger.error("start, end, and resultsPerPage must be non-negative and resultsPerPage must be greater than 0");
+            LOGGER.error("start, end, and resultsPerPage must be non-negative and resultsPerPage must be greater than 0");
             throw new IllegalArgumentException("start, end, and resultsPerPage must be non-negative, and resultsPerPage must be greater than 0");
         }
         if (start > end) {
-            logger.error("start must be less than or equal to end");
+            LOGGER.error("start must be less than or equal to end");
             throw new IllegalArgumentException("start must be less than or equal to end");
         }
 
@@ -77,7 +77,7 @@ public class KeycloakUserRepository implements UserRepository {
                     .users()
                     .count() / resultsPerPage);
 
-            logger.debug("Found {} users for realm {}", users.size(), realm);
+            LOGGER.debug("Found {} users for realm {}", users.size(), realm);
             return new Page.Builder<User>()
                     .withCurrentPage(start / resultsPerPage + 1)
                     .withNumberOfPages(numberOfPages)
@@ -85,7 +85,7 @@ public class KeycloakUserRepository implements UserRepository {
                     .withResults(users)
                     .build();
         } catch (Exception e) {
-            logger.error("Error while finding all users: ", e);
+            LOGGER.error("Error while finding all users: ", e);
             throw e;
         }
     }
@@ -102,7 +102,7 @@ public class KeycloakUserRepository implements UserRepository {
     @Override
     public User create(String realm, User user) {
         if (realm == null || realm.isEmpty()) {
-            logger.error("realm cannot be null or empty");
+            LOGGER.error("realm cannot be null or empty");
             throw new IllegalArgumentException("realm cannot be null or empty");
         }
 
@@ -117,7 +117,7 @@ public class KeycloakUserRepository implements UserRepository {
                     .getEntity();
             return result;
         } catch (Exception e) {
-            logger.error("Error while creating a user: ", e);
+            LOGGER.error("Error while creating a user: ", e);
             throw e;
         }
     }
@@ -133,12 +133,12 @@ public class KeycloakUserRepository implements UserRepository {
     @Override
     public Optional<User> find(String realm, String uid) {
         if (realm == null) {
-            logger.error("realm cannot be null");
+            LOGGER.error("realm cannot be null");
             throw new IllegalArgumentException("realm cannot be null");
         }
 
         if (uid == null) {
-            logger.error("uid cannot be null");
+            LOGGER.error("uid cannot be null");
             throw new IllegalArgumentException("uid cannot be null");
         }
 
@@ -149,7 +149,7 @@ public class KeycloakUserRepository implements UserRepository {
                     .get(uid).toRepresentation();
             return Optional.ofNullable(UserMapper.toUser(userRepresentation));
         } catch (Exception e) {
-            logger.error("Error while trying to find user with uid '{}' in realm '{}': {}", uid, realm, e.getMessage(), e);
+            LOGGER.error("Error while trying to find user with uid '{}' in realm '{}': {}", uid, realm, e.getMessage(), e);
             throw e;
         }
     }
@@ -167,15 +167,15 @@ public class KeycloakUserRepository implements UserRepository {
     @Override
     public User update(String realm, String uid, User user) {
         if (realm == null || realm.trim().isEmpty()) {
-            logger.error("realm cannot be null or empty");
+            LOGGER.error("realm cannot be null or empty");
             throw new IllegalArgumentException("realm cannot be null or empty");
         }
         if (uid == null || uid.trim().isEmpty()) {
-            logger.error("uid cannot be null or empty");
+            LOGGER.error("uid cannot be null or empty");
             throw new IllegalArgumentException("uid cannot be null or empty");
         }
         if (user == null) {
-            logger.error("user cannot be null");
+            LOGGER.error("user cannot be null");
             throw new IllegalArgumentException("user cannot be null");
         }
         try {
@@ -186,10 +186,10 @@ public class KeycloakUserRepository implements UserRepository {
 
             userResource.update(UserMapper.toUserRepresentation(user));
 
-            logger.debug("Successfully updated user with realm {} and uid {}", realm, uid);
+            LOGGER.debug("Successfully updated user with realm {} and uid {}", realm, uid);
             return find(realm, uid).get();
         } catch (Exception e) {
-            logger.error("Error updating user with realm {} and uid {}: {}", realm, uid, e.getMessage());
+            LOGGER.error("Error updating user with realm {} and uid {}: {}", realm, uid, e.getMessage());
             throw e;
         }
     }
@@ -204,12 +204,12 @@ public class KeycloakUserRepository implements UserRepository {
     @Override
     public void delete(String realm, String uid) {
         if (realm == null || realm.isEmpty()) {
-            logger.error("Realm argument is null or empty");
+            LOGGER.error("Realm argument is null or empty");
             throw new IllegalArgumentException("realm cannot be null or empty");
         }
 
         if (uid == null || uid.isEmpty()) {
-            logger.error("UID argument is null or empty");
+            LOGGER.error("UID argument is null or empty");
             throw new IllegalArgumentException("UID cannot be null or empty");
         }
 
@@ -218,9 +218,9 @@ public class KeycloakUserRepository implements UserRepository {
                     .realm(realm)
                     .users()
                     .delete(uid);
-            logger.info("Successfully deleted user with UID: {} from realm: {}", uid, realm);
+            LOGGER.info("Successfully deleted user with UID: {} from realm: {}", uid, realm);
         } catch (Exception e) {
-            logger.error("Error deleting user with UID: {} from realm: {}", uid, realm, e);
+            LOGGER.error("Error deleting user with UID: {} from realm: {}", uid, realm, e);
             throw e;
         }
     }

@@ -1,5 +1,6 @@
 package com.knsoft.user.rest;
 
+import com.knsoft.commons.data.Page;
 import com.knsoft.user.model.User;
 import com.knsoft.user.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,12 @@ public class UsersController {
     }
 
     @GetMapping("/{applicationName}")
-    public ResponseEntity<List<User>> findAll(@PathVariable String applicationName) {
-        List<User> users = userService.findAll(applicationName);
-        return users.isEmpty()
+    public ResponseEntity<Page<User>> findAll(@PathVariable String applicationName,
+                                              int start,
+                                              int end,
+                                              int resultsPerPage) {
+        Page<User> users = userService.findAll(applicationName, start, end, resultsPerPage);
+        return users.getResults().isEmpty()
                 ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(users, HttpStatus.OK);
     }

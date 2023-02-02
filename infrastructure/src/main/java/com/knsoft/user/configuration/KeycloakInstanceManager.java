@@ -8,6 +8,15 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * KeycloakInstanceManager is a class responsible for managing Keycloak instances.
+ * It contains a map of Keycloak instances, where the key is the realm name and the value is the Keycloak instance.
+ * The class also has the necessary setters and getters to set the Keycloak configuration properties.
+ *
+ * @author  KnSoft
+ * @version 1.0
+ * @since 1.0.0
+ */
 @Component
 @ConfigurationProperties(prefix = "keycloak")
 public class KeycloakInstanceManager {
@@ -17,6 +26,13 @@ public class KeycloakInstanceManager {
     private Map<String, RealmProperties> realms = new HashMap<>();
     private final Map<String, Keycloak> INSTANCES = new HashMap<>();
 
+    /**
+     * Returns a Keycloak instance for the specified realm.
+     * If the Keycloak instance for the specified realm does not exist, it creates a new one and adds it to the INSTANCES map.
+     *
+     * @param realmName the name of the realm
+     * @return the Keycloak instance for the specified realm
+     */
     public Keycloak getInstance(String realmName) {
         if (!INSTANCES.containsKey(realmName)) {
             RealmProperties realmProperties = realms.get(realmName);

@@ -1,10 +1,10 @@
 package com.knsoft.user.services;
 
+import com.knsoft.commons.data.Page;
 import com.knsoft.commons.exceptions.EntityNotFoundException;
 import com.knsoft.user.model.User;
 import com.knsoft.user.services.repositories.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,9 +34,9 @@ public class UserService {
      * @return a list of users.
      * @throws IllegalArgumentException if applicationName is null or empty.
      */
-    public List<User> findAll(String applicationName) {
+    public Page<User> findAll(String applicationName, int start, int end, int resultsPerPage) {
         validateApplicationName(applicationName);
-        return findAll(applicationName);
+        return userRepository.findAll(applicationName, start, end, resultsPerPage);
     }
 
 
@@ -45,7 +45,7 @@ public class UserService {
      * or an empty Optional if no such user exists.
      *
      * @param applicationName the name of the application.
-     * @param uid the uid of the user.
+     * @param uid             the uid of the user.
      * @return an Optional containing the user.
      * @throws IllegalArgumentException if applicationName or uid is null or empty.
      */
@@ -59,7 +59,7 @@ public class UserService {
      * Creates a new user and returns it.
      *
      * @param applicationName the name of the application.
-     * @param user the user to be created.
+     * @param user            the user to be created.
      * @return the created user.
      * @throws IllegalArgumentException if applicationName or user is null or empty.
      */
@@ -69,17 +69,18 @@ public class UserService {
         return userRepository.create(applicationName, user);
     }
 
+
     /**
      * Updates a User in the specified application with the specified uid.
      *
      * @param applicationName the name of the application where the user resides
-     * @param uid the unique identifier of the user to update
-     * @param user the updated user information
+     * @param uid             the unique identifier of the user to update
+     * @param user            the updated user information
      * @return the updated user
      * @throws IllegalArgumentException if the `applicationName` is null or empty
      * @throws IllegalArgumentException if the `uid` is null or empty
      * @throws IllegalArgumentException if the `user` is null
-     * @throws EntityNotFoundException if no user is found with the specified uid
+     * @throws EntityNotFoundException  if no user is found with the specified uid
      */
     public User update(String applicationName, String uid, User user) {
         validateApplicationName(applicationName);
@@ -94,10 +95,10 @@ public class UserService {
      * Deletes a user for the given applicationName and uid.
      *
      * @param applicationName the name of the application.
-     * @param uid the unique identifier of the user.
+     * @param uid             the unique identifier of the user.
      * @throws IllegalArgumentException if applicationName is null or empty.
      * @throws IllegalArgumentException if uid is null or empty.
-     * @throws EntityNotFoundException if no user is found with the given uid in the specified applicationName.
+     * @throws EntityNotFoundException  if no user is found with the given uid in the specified applicationName.
      */
     public void delete(String applicationName, String uid) {
         validateApplicationName(applicationName);
@@ -126,6 +127,5 @@ public class UserService {
     }
 
 
-    public void cleanUpNotValidatedUsers() {
-    }
+
 }
