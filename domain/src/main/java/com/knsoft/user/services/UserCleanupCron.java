@@ -26,7 +26,7 @@ import java.util.Timer;
 public class UserCleanupCron {
     private final UserRegistrationService userRegistrationService;
     private final long registrationCheckLapseInMinutes;
-    private final long registrationInvalidationLapseInMinute;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserCleanupCron.class);
 
     /**
@@ -36,15 +36,11 @@ public class UserCleanupCron {
      *                                              the operations to access user registration information.
      * @param registrationCheckLapseInMinutes       The interval at which the cleanup task should run,
      *                                              specified in minutes.
-     * @param registrationInvalidationLapseInMinute The maximum time that a user should not validate
-     *                                              their registration before it is deleted, specified in minutes.
      */
     public UserCleanupCron(UserRegistrationService userRegistrationService,
-                           long registrationCheckLapseInMinutes,
-                           long registrationInvalidationLapseInMinute) {
+                           long registrationCheckLapseInMinutes) {
         this.userRegistrationService = userRegistrationService;
         this.registrationCheckLapseInMinutes = registrationCheckLapseInMinutes;
-        this.registrationInvalidationLapseInMinute = registrationInvalidationLapseInMinute;
     }
 
     /**
@@ -54,7 +50,8 @@ public class UserCleanupCron {
         try {
             LOGGER.info("Scheduling user cleanup task with interval of {} minutes", registrationCheckLapseInMinutes);
             Timer timer = new Timer();
-            timer.schedule(new UserCleanupTask(userRegistrationService, registrationInvalidationLapseInMinute),
+            timer.schedule(new UserCleanupTask(userRegistrationService,
+                            userRegistrationService.getRegistrationInvalidationLapseInMinute()),
                     0L, registrationCheckLapseInMinutes * 60 * 1000);
             LOGGER.info("User cleanup task scheduled");
         } catch (Exception e) {

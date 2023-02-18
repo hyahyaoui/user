@@ -9,32 +9,32 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>infrastructure</artifactId>
+    <artifactId>tests</artifactId>
+
+    <properties>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knsoft</groupId>
             <artifactId>domain</artifactId>
-            <version>${domain.version}</version>
+            <version>${parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>6.10.2</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-admin-client</artifactId>
-            <version>20.0.3</version>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>6.10.2</version>
+            <scope>test</scope>
         </dependency>
-
-
     </dependencies>
-    <properties>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
-        <keycloak-spring-boot-starter.version>9.0.3</keycloak-spring-boot-starter.version>
-        <domain.version>1.0.0-SNAPSHOT</domain.version>
-    </properties>
-
 </project>

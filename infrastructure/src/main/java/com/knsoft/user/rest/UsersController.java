@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,42 +20,42 @@ public class UsersController {
         this.userService = userService;
     }
 
-    @GetMapping("/{applicationName}")
+    @GetMapping("")
     public ResponseEntity<Page<User>> findAll(@PathVariable String applicationName,
                                               int start,
                                               int end,
                                               int resultsPerPage) {
-        Page<User> users = userService.findAll(applicationName, start, end, resultsPerPage);
+        Page<User> users = userService.findAll(start, end, resultsPerPage);
         return users.getResults().isEmpty()
                 ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @GetMapping("/{applicationName}/{uid}")
+    @GetMapping("/{uid}")
     public ResponseEntity<User> findUser(@PathVariable String applicationName, @PathVariable String uid) {
-        Optional<User> user = userService.find(applicationName, uid);
+        Optional<User> user = userService.findUserByUid(uid);
         return user.map(u -> new ResponseEntity<>(u, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/{applicationName}")
+    @PostMapping("")
     public ResponseEntity<User> createUser(@PathVariable String applicationName, @RequestBody User user) {
-        user = userService.create(applicationName, user);
+        user = userService.create(user);
         return ResponseEntity.created(URI.create("/users/" + applicationName + "/" + user.getUid()))
                 .body(user);
     }
 
-    @PutMapping("/{applicationName}/{uid}")
+    @PutMapping("/{uid}")
     public ResponseEntity<User> update(@PathVariable String applicationName, @PathVariable String uid,
                                        @RequestBody User user) {
 
-        user = userService.update(applicationName, uid, user);
+        user = userService.update(uid, user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{applicationName}/{uid}")
+    @DeleteMapping("/{uid}")
     public ResponseEntity<Void> delete(@PathVariable String applicationName, @PathVariable String uid) {
-        userService.delete(applicationName, uid);
+        userService.delete(uid);
         return ResponseEntity.noContent().build();
     }
 }

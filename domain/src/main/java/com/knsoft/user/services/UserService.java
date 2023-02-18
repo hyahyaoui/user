@@ -1,9 +1,10 @@
 package com.knsoft.user.services;
 
 import com.knsoft.commons.data.Page;
+import com.knsoft.commons.exceptions.EntityAlreadyExistsException;
 import com.knsoft.commons.exceptions.EntityNotFoundException;
 import com.knsoft.user.model.User;
-import com.knsoft.user.services.repositories.UserRepository;
+import com.knsoft.user.repositories.UserRepository;
 
 import java.util.Optional;
 
@@ -30,13 +31,11 @@ public class UserService {
     /**
      * Returns a list of all users associated with the specified application.
      *
-     * @param applicationName the name of the application.
      * @return a list of users.
      * @throws IllegalArgumentException if applicationName is null or empty.
      */
-    public Page<User> findAll(String applicationName, int start, int end, int resultsPerPage) {
-        validateApplicationName(applicationName);
-        return userRepository.findAll(applicationName, start, end, resultsPerPage);
+    public Page<User> findAll(int start, int end, int resultsPerPage) {
+        return userRepository.findAllUsers(start, end, resultsPerPage);
     }
 
 
@@ -44,68 +43,63 @@ public class UserService {
      * Returns an Optional containing the user with the specified uid,
      * or an empty Optional if no such user exists.
      *
-     * @param applicationName the name of the application.
-     * @param uid             the uid of the user.
+     * @param uid the uid of the user.
      * @return an Optional containing the user.
      * @throws IllegalArgumentException if applicationName or uid is null or empty.
      */
-    public Optional<User> find(String applicationName, String uid) {
-        validateApplicationName(applicationName);
+    public Optional<User> findUserByUid(String uid) {
         validateUid(uid);
-        return userRepository.find(applicationName, uid);
+        return userRepository.findUserById(uid);
     }
 
     /**
      * Creates a new user and returns it.
      *
-     * @param applicationName the name of the application.
-     * @param user            the user to be created.
+     * @param user the user to be created.
      * @return the created user.
      * @throws IllegalArgumentException if applicationName or user is null or empty.
      */
-    public User create(String applicationName, User user) {
-        validateApplicationName(applicationName);
-        validateUser(user);
-        return userRepository.create(applicationName, user);
+    public User create(User user) {
+        validateUserToAdd(user);
+        return userRepository.create(user);
     }
 
 
     /**
      * Updates a User in the specified application with the specified uid.
      *
-     * @param applicationName the name of the application where the user resides
-     * @param uid             the unique identifier of the user to update
-     * @param user            the updated user information
+     * @param uid  the unique identifier of the user to update
+     * @param user the updated user information
      * @return the updated user
      * @throws IllegalArgumentException if the `applicationName` is null or empty
      * @throws IllegalArgumentException if the `uid` is null or empty
      * @throws IllegalArgumentException if the `user` is null
      * @throws EntityNotFoundException  if no user is found with the specified uid
      */
-    public User update(String applicationName, String uid, User user) {
-        validateApplicationName(applicationName);
+    public User update(String uid, User user) {
         validateUid(uid);
-        validateUser(user);
-        find(applicationName, uid).orElseThrow(() ->
+        validateUserToUpdate(user);
+        findUserByUid(uid).orElseThrow(() ->
                 new EntityNotFoundException("No user found with uid " + uid));
-        return userRepository.update(applicationName, uid, user);
+        return userRepository.update(uid, user);
+    }
+
+    public void findByUserName(String userName) {
     }
 
     /**
      * Deletes a user for the given applicationName and uid.
      *
-     * @param applicationName the name of the application.
-     * @param uid             the unique identifier of the user.
+     * @param uid the unique identifier of the user.
      * @throws IllegalArgumentException if applicationName is null or empty.
      * @throws IllegalArgumentException if uid is null or empty.
      * @throws EntityNotFoundException  if no user is found with the given uid in the specified applicationName.
      */
-    public void delete(String applicationName, String uid) {
-        validateApplicationName(applicationName);
+    public void delete(String uid) {
         validateUid(uid);
-        find(applicationName, uid).orElseThrow(() ->
+        findUserByUid(uid).orElseThrow(() ->
                 new EntityNotFoundException("No user found with uid " + uid));
-        userRepository.delete(applicationName, uid);
+        userRepository.delete(uid);
     }
 
     private void validateUid(String uid) {
@@ -114,15 +108,50 @@ public class UserService {
         }
     }
 
-    private void validateApplicationName(String applicationName) {
-        if (applicationName == null || applicationName.trim().isEmpty()) {
-            throw new IllegalArgumentException("applicationName must not be null or empty");
+
+    private void validateUserToAdd(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+
+        validateEmailUniquenessForAdd(user.getUserName());
+        validateUserNameUniquenessForAdd(user.getEmail());
+    }
+
+    private void validateUserToUpdate(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+
+        validateEmailUniquenessForUpdate(user);
+        validateUserNameUniquenessForUpdate(user);
+    }
+
+    private void validateEmailUniquenessForAdd(String email) {
+        final Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isEmpty()) {
+            throw new EntityAlreadyExistsException("User with email " + email + " already exists");
         }
     }
 
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User must not be null");
+    private void validateUserNameUniquenessForAdd(String userName) {
+        final Optional<User> user = userRepository.findByUserName(userName);
+        if (!user.isEmpty()) {
+            throw new EntityAlreadyExistsException("User with email " + userName + " already exists");
+        }
+    }
+
+    private void validateEmailUniquenessForUpdate(User userToValidate) {
+        final Optional<User> user = userRepository.findByEmail(userToValidate.getEmail());
+        if (!user.isEmpty() && user.get().getUid() != userToValidate.getUid()) {
+            throw new EntityAlreadyExistsException("User with email " + userToValidate.getEmail() + " already exists");
+        }
+    }
+
+    private void validateUserNameUniquenessForUpdate(User userToValidate) {
+        final Optional<User> user = userRepository.findByUserName(userToValidate.getUserName());
+        if (!user.isEmpty() && !user.get().getUid().equals(userToValidate.getUid())) {
+            throw new EntityAlreadyExistsException("User with username " + userToValidate.getUserName() + " already exists");
         }
     }
 

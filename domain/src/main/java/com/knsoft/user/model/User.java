@@ -1,101 +1,91 @@
 package com.knsoft.user.model;
 
-/**
- * The User class represents a user with a unique identifier, username, first name and last name.
- *
- * @author YourName
- */
+
+import java.util.Set;
+import java.util.UUID;
+
 public class User {
-
-    /**
-     * A unique identifier for the user
-     */
-    private String uid;
-
-    /**
-     * The username of the user
-     */
+    private String uid = UUID.randomUUID().toString();
     private String userName;
-
-    /**
-     * The first name of the user
-     */
     private String firstName;
-
-    /**
-     * The last name of the user
-     */
     private String lastName;
+    private String email;
+    private Set<String> roles;
+    private Set<String> scopes;
+    private Status status;
+    private long registrationDate;
 
-    /**
-     * Gets the unique identifier of the user
-     *
-     * @return the unique identifier of the user
-     */
     public String getUid() {
         return uid;
     }
 
-    /**
-     * Sets the unique identifier of the user
-     *
-     * @param uid the unique identifier of the user
-     */
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    /**
-     * Gets the username of the user
-     *
-     * @return the username of the user
-     */
     public String getUserName() {
         return userName;
     }
 
-    /**
-     * Sets the username of the user
-     *
-     * @param userName the username of the user
-     */
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    /**
-     * Gets the first name of the user
-     *
-     * @return the first name of the user
-     */
     public String getFirstName() {
         return firstName;
     }
 
-    /**
-     * Sets the first name of the user
-     *
-     * @param firstName the first name of the user
-     */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
-    /**
-     * Gets the last name of the user
-     *
-     * @return the last name of the user
-     */
     public String getLastName() {
         return lastName;
     }
 
-    /**
-     * Sets the last name of the user
-     *
-     * @param lastName the last name of the user
-     */
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
+
+    public Set<String> getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(Set<String> scopes) {
+        this.scopes = scopes;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public long getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(long registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE
     }
 }
