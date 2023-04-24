@@ -15,6 +15,13 @@ public class User {
     private Status status;
     private long registrationDate;
 
+    public User() {
+    }
+
+    public User(String uid) {
+        this.uid = uid;
+    }
+
     public String getUid() {
         return uid;
     }

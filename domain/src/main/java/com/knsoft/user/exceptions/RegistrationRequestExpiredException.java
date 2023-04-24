@@ -6,7 +6,7 @@ package com.knsoft.user.exceptions;
  * <p>This exception is typically thrown when a user attempts to validate a registration request
  * that has been inactive for longer than the allowed time lapse.</p>
  *
- * @author Your Name
+ * @author hyahyaoui
  * @version 1.0
  * @since 1.0.0
  */

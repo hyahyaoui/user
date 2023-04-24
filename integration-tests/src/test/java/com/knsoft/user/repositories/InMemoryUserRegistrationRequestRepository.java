@@ -30,7 +30,7 @@ public class InMemoryUserRegistrationRequestRepository implements UserRegistrati
     }
 
     @Override
-    public List<UserRegistrationRequest> findRegistrationBefore(long creationDateThreshold) {
+    public List<UserRegistrationRequest> findRegistrationRequestBefore(long creationDateThreshold) {
         return userRegistrationRequests.stream()
                 .filter(r -> r.getRegistrationRequestDate() < creationDateThreshold)
                 .collect(Collectors.toList());

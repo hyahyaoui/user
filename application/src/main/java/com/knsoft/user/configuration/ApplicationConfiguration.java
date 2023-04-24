@@ -10,6 +10,7 @@ public class ApplicationConfiguration {
 
     @Bean
     public UserService userService(KeycloakInstanceManager keycloakInstanceManager) {
+        String realm = "AAA";
         return new UserService(new KeycloakUserRepository(keycloakInstanceManager, realm));
     }
 }

@@ -25,37 +25,52 @@ import java.util.Timer;
  */
 public class UserCleanupCron {
     private final UserRegistrationService userRegistrationService;
-    private final long registrationCheckLapseInMinutes;
-
+    private final long registrationCheckLapseInSeconds;
+    private Timer timer = new Timer();
     private static final Logger LOGGER = LoggerFactory.getLogger(UserCleanupCron.class);
 
     /**
      * Constructs a new instance of the {@code UserCleanupCron} class.
      *
-     * @param userRegistrationService               A {@link UserRegistrationService} object, which provides
-     *                                              the operations to access user registration information.
-     * @param registrationCheckLapseInMinutes       The interval at which the cleanup task should run,
-     *                                              specified in minutes.
+     * @param userRegistrationService         A {@link UserRegistrationService} object, which provides
+     *                                        the operations to access user registration information.
+     * @param registrationCheckLapseInSeconds The interval at which the cleanup task should run,
+     *                                        specified in minutes.
      */
     public UserCleanupCron(UserRegistrationService userRegistrationService,
-                           long registrationCheckLapseInMinutes) {
+                           long registrationCheckLapseInSeconds) {
+        if (registrationCheckLapseInSeconds < 1) {
+            throw new IllegalArgumentException("registrationCheckLapseInSeconds should be at least one second");
+        }
         this.userRegistrationService = userRegistrationService;
-        this.registrationCheckLapseInMinutes = registrationCheckLapseInMinutes;
+        this.registrationCheckLapseInSeconds = registrationCheckLapseInSeconds;
     }
+
 
     /**
      * Schedules the deletion of users who have not validated their registrations.
      */
     public void start() {
         try {
-            LOGGER.info("Scheduling user cleanup task with interval of {} minutes", registrationCheckLapseInMinutes);
-            Timer timer = new Timer();
+            LOGGER.info("Scheduling user cleanup task with interval of {} seconds", registrationCheckLapseInSeconds);
+
             timer.schedule(new UserCleanupTask(userRegistrationService,
                             userRegistrationService.getRegistrationInvalidationLapseInMinute()),
-                    0L, registrationCheckLapseInMinutes * 60 * 1000);
+                    0L, registrationCheckLapseInSeconds);
             LOGGER.info("User cleanup task scheduled");
         } catch (Exception e) {
             LOGGER.error("Failed to schedule user cleanup task", e);
         }
     }
+
+    public void stop() {
+        try {
+            LOGGER.info("Stopping user clean up cron");
+            timer.cancel();
+            LOGGER.info("User cleanup cron task cron stopped");
+        } catch (Exception e) {
+            LOGGER.error("Failed to stop user cleanup cron", e);
+        }
+    }
+
 }

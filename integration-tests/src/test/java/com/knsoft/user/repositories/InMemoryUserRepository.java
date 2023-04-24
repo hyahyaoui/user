@@ -66,14 +66,14 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         return userMap.values().stream()
                 .filter(user -> email.equalsIgnoreCase(user.getEmail()))
                 .findFirst();
     }
 
     @Override
-    public Optional<User> findByUserName(String username) {
+    public Optional<User> findUserByUserName(String username) {
         return userMap.values().stream()
                 .filter(user -> username.equalsIgnoreCase(user.getUserName()))
                 .findFirst();

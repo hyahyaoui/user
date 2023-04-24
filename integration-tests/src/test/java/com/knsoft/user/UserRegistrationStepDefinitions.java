@@ -2,9 +2,8 @@ package com.knsoft.user;
 
 import com.knsoft.user.model.User;
 import com.knsoft.user.model.UserRegistrationRequest;
-import com.knsoft.user.repositories.InMemoryUserRegistrationRequestRepository;
-import com.knsoft.user.repositories.InMemoryUserRepository;
 import com.knsoft.user.repositories.UserRepository;
+import com.knsoft.user.services.UserCleanupCron;
 import com.knsoft.user.services.UserRegistrationService;
 import com.knsoft.user.services.UserService;
 import io.cucumber.java.Before;
@@ -21,6 +20,8 @@ public class UserRegistrationStepDefinitions {
     private UserService userService;
     private UserRegistrationService userRegistrationService;
     private UserRepository userRepository = new InMemoryUserRepository();
+
+    private final int REGISTRATION_INVALIDATION_LAPSE_IN_MINUTES = 5;
     private InMemoryUserRegistrationRequestRepository userRegistrationRequestRepository =
             new InMemoryUserRegistrationRequestRepository();
 
@@ -29,8 +30,9 @@ public class UserRegistrationStepDefinitions {
     @Before
     public void setUp() {
         userService = new UserService(userRepository);
+
         userRegistrationService = new UserRegistrationService(userRegistrationRequestRepository,
-                userService, 5);
+                userService, REGISTRATION_INVALIDATION_LAPSE_IN_MINUTES);
     }
 
     @Given("a user which username is {string} and email is {string}")
@@ -56,7 +58,7 @@ public class UserRegistrationStepDefinitions {
     }
 
     @And("when the user try to validate his registration with the given registration code in time")
-    public void whenTheUserTryToValidateHisRegistrationWithTheGivenRegistrationCodeInTime(){
+    public void whenTheUserTryToValidateHisRegistrationWithTheGivenRegistrationCodeInTime() {
         final UserRegistrationRequest registration =
                 userRegistrationRequestRepository.findRegistrationRequestByUserUid(user.getUid()).get();
 
@@ -69,17 +71,27 @@ public class UserRegistrationStepDefinitions {
 
         user = userService.findUserByUid(user.getUid()).get();
 
-        assertEquals(user.getStatus(), User.Status.valueOf(status));
-        assertEquals(userRegistrationRequestRepository.findRegistrationRequestByUserUid(user.getUid()), Optional.empty());
-    }
-
-    @And("when the user exceed the registration deadline and try to validate his registration")
-    public void whenTheUserExceedTheRegistrationDeadlineAndTryToValidateHisRegistration() {
-
-
+        assertEquals(User.Status.valueOf(status), user.getStatus());
+        assertEquals(Optional.empty(), userRegistrationRequestRepository.findRegistrationRequestByUserUid(user.getUid()));
     }
 
     @Then("his account should not exist any more neither the registration request")
     public void hisAccountShouldNotExistAnyMoreNeitherTheRegistrationRequest() {
+        assertEquals(Optional.empty(), userRegistrationRequestRepository.findRegistrationRequestByUserUid(user.getUid()));
+        assertEquals(userRepository.findUserById(user.getUid()), Optional.empty());
+
+    }
+
+    @And("when the user exceed the registration deadline and the cleanup cron runs")
+    public void whenTheUserExceedTheRegistrationDeadlineAndTheCleanupCronRuns() throws InterruptedException {
+        final UserRegistrationRequest registration =
+                userRegistrationRequestRepository.findRegistrationRequestByUserUid(user.getUid()).get();
+        registration.setRegistrationRequestDate(registration.getRegistrationRequestDate()
+                - REGISTRATION_INVALIDATION_LAPSE_IN_MINUTES * 60 * 100);
+
+        UserCleanupCron cron = new UserCleanupCron(userRegistrationService, 10 * 60);
+        cron.start();
+        // Ensure that the task run
+        Thread.sleep(10);
     }
 }

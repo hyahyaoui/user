@@ -28,6 +28,11 @@ public interface UserRepository {
      */
     Optional<User> findUserById(String uid);
 
+
+    Optional<User> findUserByEmail(String email);
+
+    Optional<User> findUserByUserName(String email);
+
     /**
      * Creates a new user for a given application.
      *
@@ -52,7 +57,4 @@ public interface UserRepository {
      */
     void delete(String uid);
 
-    Optional<User> findByEmail(String email);
-
-    Optional<User> findByUserName(String email);
 }

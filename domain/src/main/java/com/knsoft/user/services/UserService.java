@@ -1,8 +1,8 @@
 package com.knsoft.user.services;
 
 import com.knsoft.commons.data.Page;
-import com.knsoft.commons.exceptions.EntityAlreadyExistsException;
-import com.knsoft.commons.exceptions.EntityNotFoundException;
+import com.knsoft.commons.data.exceptions.EntityAlreadyExistsException;
+import com.knsoft.commons.data.exceptions.EntityNotFoundException;
 import com.knsoft.user.model.User;
 import com.knsoft.user.repositories.UserRepository;
 
@@ -84,7 +84,17 @@ public class UserService {
         return userRepository.update(uid, user);
     }
 
-    public void findByUserName(String userName) {
+    public User activateUser(String uid) {
+        validateUid(uid);
+        final User user = findUserByUid(uid).orElseThrow(() ->
+                new EntityNotFoundException("No user found with uid " + uid));
+        user.setStatus(User.Status.ACTIVE);
+        return userRepository.update(uid, user);
+    }
+
+    public Optional<User> findByUserName(String userName) {
+        validateUserName(userName);
+        return userRepository.findUserByUserName(userName);
     }
 
     /**
@@ -107,6 +117,11 @@ public class UserService {
             throw new IllegalArgumentException("uid must not be null or empty");
         }
     }
+    private void validateUserName(String userName) {
+        if (userName == null || userName.trim().isEmpty()) {
+            throw new IllegalArgumentException("userName must not be null or empty");
+        }
+    }
 
 
     private void validateUserToAdd(User user) {
@@ -114,8 +129,8 @@ public class UserService {
             throw new IllegalArgumentException("User must not be null");
         }
 
-        validateEmailUniquenessForAdd(user.getUserName());
-        validateUserNameUniquenessForAdd(user.getEmail());
+        validateEmailUniquenessForAdd(user.getEmail());
+        validateUserNameUniquenessForAdd(user.getUserName());
     }
 
     private void validateUserToUpdate(User user) {
@@ -128,33 +143,32 @@ public class UserService {
     }
 
     private void validateEmailUniquenessForAdd(String email) {
-        final Optional<User> user = userRepository.findByEmail(email);
+        final Optional<User> user = userRepository.findUserByEmail(email);
         if (!user.isEmpty()) {
             throw new EntityAlreadyExistsException("User with email " + email + " already exists");
         }
     }
 
     private void validateUserNameUniquenessForAdd(String userName) {
-        final Optional<User> user = userRepository.findByUserName(userName);
+        final Optional<User> user = userRepository.findUserByUserName(userName);
         if (!user.isEmpty()) {
             throw new EntityAlreadyExistsException("User with email " + userName + " already exists");
         }
     }
 
     private void validateEmailUniquenessForUpdate(User userToValidate) {
-        final Optional<User> user = userRepository.findByEmail(userToValidate.getEmail());
+        final Optional<User> user = userRepository.findUserByEmail(userToValidate.getEmail());
         if (!user.isEmpty() && user.get().getUid() != userToValidate.getUid()) {
             throw new EntityAlreadyExistsException("User with email " + userToValidate.getEmail() + " already exists");
         }
     }
 
     private void validateUserNameUniquenessForUpdate(User userToValidate) {
-        final Optional<User> user = userRepository.findByUserName(userToValidate.getUserName());
+        final Optional<User> user = userRepository.findUserByUserName(userToValidate.getUserName());
         if (!user.isEmpty() && !user.get().getUid().equals(userToValidate.getUid())) {
             throw new EntityAlreadyExistsException("User with username " + userToValidate.getUserName() + " already exists");
         }
     }
-
 
 
 }

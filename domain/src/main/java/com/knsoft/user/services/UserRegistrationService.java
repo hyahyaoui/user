@@ -1,6 +1,6 @@
 package com.knsoft.user.services;
 
-import com.knsoft.commons.exceptions.EntityNotFoundException;
+import com.knsoft.commons.data.exceptions.EntityNotFoundException;
 import com.knsoft.user.exceptions.RegistrationRequestExpiredException;
 import com.knsoft.user.model.User;
 import com.knsoft.user.model.UserRegistrationRequest;
@@ -26,11 +26,13 @@ public class UserRegistrationService {
     private final UserRegistrationRequestRepository userRegistrationRequestRepository;
     private final UserService userService;
 
+
     public long getRegistrationInvalidationLapseInMinute() {
         return registrationInvalidationLapseInMinute;
     }
 
     private final long registrationInvalidationLapseInMinute;
+
     /**
      * Constructs a new {@code UserRegistrationService} instance.
      *
@@ -82,20 +84,14 @@ public class UserRegistrationService {
             throw new EntityNotFoundException("User registration not found with ID " + registrationCode);
         }
 
-        // check if the registration is still valid
-        long registrationRequestDate = userRegistrationRequest.get().getRegistrationRequestDate();
-        long currentDate = Instant.now().toEpochMilli();
-        long expirationTime = registrationRequestDate + registrationInvalidationLapseInMinute * 60 * 1000;
-        if (currentDate > expirationTime) {
-            throw new RegistrationRequestExpiredException("Registration request with ID " + registrationCode + " has expired");
+        // Extra check in case of the registration request has expired and the cron did not execute yet
+        if (!isRegistrationRequestStillValid(userRegistrationRequest.get())) {
+            throw new RegistrationRequestExpiredException(
+                    "Registration request with ID " + registrationCode + " has expired");
         }
 
         String uid = userRegistrationRequest.get().getUserUid();
-        User user = userService.findUserByUid(uid)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with UID " + uid));
-
-        user.setStatus(User.Status.ACTIVE);
-        userService.update(uid, user);
+        userService.activateUser(uid);
         userRegistrationRequestRepository.delete(userRegistrationRequest.get().getUid());
     }
 
@@ -105,7 +101,8 @@ public class UserRegistrationService {
      * @param registrationId the ID of the user registration to invalidate
      */
     private void invalidateRegistration(String registrationId) {
-        final Optional<UserRegistrationRequest> userRegistration = userRegistrationRequestRepository.findRegistrationRequestById(registrationId);
+        final Optional<UserRegistrationRequest> userRegistration = userRegistrationRequestRepository
+                .findRegistrationRequestById(registrationId);
         userRegistrationRequestRepository.delete(registrationId);
         userService.delete(userRegistration.get().getUserUid());
     }
@@ -117,9 +114,19 @@ public class UserRegistrationService {
      */
     public void invalidateExpiredRegistrations(long lapseTimeInMilliseconds) {
         final long creationDateThreshold = System.currentTimeMillis() - lapseTimeInMilliseconds;
-        final List<UserRegistrationRequest> expiredRegistrations = userRegistrationRequestRepository.findRegistrationBefore(creationDateThreshold);
+        final List<UserRegistrationRequest> expiredRegistrations = userRegistrationRequestRepository
+                .findRegistrationRequestBefore(creationDateThreshold);
         for (UserRegistrationRequest expiredRegistration : expiredRegistrations) {
             invalidateRegistration(expiredRegistration.getUid());
         }
+    }
+
+    private boolean isRegistrationRequestStillValid(UserRegistrationRequest userRegistrationRequest) {
+        long registrationRequestDate = userRegistrationRequest.getRegistrationRequestDate();
+        long currentDate = Instant.now().toEpochMilli();
+        long expirationTime = registrationRequestDate + registrationInvalidationLapseInMinute * 60 * 1000;
+
+        return currentDate <= expirationTime;
+
     }
 }

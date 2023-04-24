@@ -17,17 +17,17 @@ import java.util.TimerTask;
 public class UserCleanupTask extends TimerTask {
     private final UserRegistrationService userRegistrationService;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserCleanupTask.class);
-    private final long lapseTimeInMilliseconds;
+    private final long registrationExpirationInSeconds;
 
     /**
      * Constructs a new {@code UserCleanupTask} object and sets the provided {@link UserRegistrationService} and the lapsed time in milliseconds.
      *
      * @param userRegistrationService the service used to delete users who have not validated their registrations
-     * @param lapseTimeInMilliseconds the amount of time in milliseconds after which an unvalidated registration should be considered expired
+     * @param registrationExpirationInSeconds the amount of time in seconds after which an unvalidated registration should be considered expired
      */
-    public UserCleanupTask(UserRegistrationService userRegistrationService, long lapseTimeInMilliseconds) {
+    public UserCleanupTask(UserRegistrationService userRegistrationService, long registrationExpirationInSeconds) {
         this.userRegistrationService = userRegistrationService;
-        this.lapseTimeInMilliseconds = lapseTimeInMilliseconds;
+        this.registrationExpirationInSeconds = registrationExpirationInSeconds;
     }
 
     /**
@@ -39,9 +39,9 @@ public class UserCleanupTask extends TimerTask {
     @Override
     public void run() {
         try {
-            LOGGER.info("User cleanup task started");
-            userRegistrationService.invalidateExpiredRegistrations(lapseTimeInMilliseconds);
-            LOGGER.info("User cleanup task completed");
+            LOGGER.info("User cleanup started");
+            userRegistrationService.invalidateExpiredRegistrations(registrationExpirationInSeconds);
+            LOGGER.info("User cleanup completed");
         } catch (Exception e) {
             LOGGER.error("User cleanup task failed", e);
         }
